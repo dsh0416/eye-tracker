@@ -37,17 +37,35 @@ if __name__ == '__main__':
           (x, y) = (predicted.part(i).x, predicted.part(i).y)
           landmarks[i] = (x, y)
       
-      # mark eyes
+      # Mark eyes
       left_eye = landmarks[36:42]
+      left_eye_center = left_eye.mean(axis=0).astype('int')
       right_eye = landmarks[42:48]
+      right_eye_center = right_eye.mean(axis=0).astype('int')
+      cv2.circle(image, tuple(left_eye_center), 1, (0, 0, 255), -1)
+      cv2.circle(image, tuple(right_eye_center), 1, (0, 255, 0), -1)
 
-      for landmark in left_eye:
-        cv2.circle(image, tuple(landmark), 1, (0, 0, 255), -1)
-      cv2.putText(image, 'L', (left_eye[0][0], left_eye[0][1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-      
-      for landmark in right_eye:
-        cv2.circle(image, tuple(landmark), 1, (0, 255, 0), -1)
-      cv2.putText(image, 'R', (right_eye[0][0], right_eye[0][1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+      # Get 32x32 eye image
+      eye_width = 32
+      eye_height = 32
+      eye_left_x = left_eye_center[0] - eye_width // 2
+      eye_left_y = left_eye_center[1] - eye_height // 2
+      eye_right_x = right_eye_center[0] - eye_width // 2
+      eye_right_y = right_eye_center[1] - eye_height // 2
+      eye_left = grayscale[eye_left_y:eye_left_y + eye_height, eye_left_x:eye_left_x + eye_width]
+      eye_right = grayscale[eye_right_y:eye_right_y + eye_height, eye_right_x:eye_right_x + eye_width]
+      cv2.putText(image, 'L', (eye_left_x, eye_left_y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+      cv2.putText(image, 'R', (eye_right_x, eye_right_y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+      # Show image
+      eye_window = np.zeros((eye_height, eye_width * 2), dtype='uint8')
+      eye_window[0:eye_height, 0:eye_width] = eye_left
+      eye_window[0:eye_height, eye_width:eye_width * 2] = eye_right
+      image[0:eye_height, 0:eye_width * 2, 0] = eye_window
+      image[0:eye_height, 0:eye_width * 2, 1] = eye_window
+      image[0:eye_height, 0:eye_width * 2, 2] = eye_window
+
 
     cv2.imshow('Press \'Q\' to quit', image)
 
