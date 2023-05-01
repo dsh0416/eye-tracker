@@ -21,7 +21,7 @@ if __name__ == '__main__':
     ret, frame = video.read()
 
     # Preprocessing
-    image = imutils.resize(frame, width=500)
+    image = imutils.resize(frame, width=720)
     grayscale = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     rects = detector(grayscale, 1)
 
